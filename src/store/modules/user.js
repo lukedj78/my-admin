@@ -44,12 +44,14 @@ const user = {
   },
 
   actions: {
-    // 用户名登录
+    // User name login
     LoginByUsername({ commit }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
-        loginByUsername(username, userInfo.password).then(response => {
+        loginByUsername(username, userInfo.secret)
+        .then(response => {
           const data = response.data
+          const role = 'admin'
           commit('SET_TOKEN', data.token)
           setToken(response.data.token)
           resolve()
@@ -59,78 +61,79 @@ const user = {
       })
     },
 
-    // 获取用户信息
+    // Get user information
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
-          }
-          const data = response.data
-          commit('SET_ROLES', data.roles)
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          resolve(response)
-        }).catch(error => {
-          reject(error)
-        })
+        getUserInfo(state.token)
+        .then(response => {
+          if (!response.data) { // Since mockjs doesn't support custom status codes this can only be hacked
+          reject('error')
+        }
+        const data = response.data
+        commit('SET_ROLES', data.roles)
+        commit('SET_NAME', data.name)
+        commit('SET_AVATAR', data.avatar)
+        commit('SET_INTRODUCTION', data.introduction)
+        resolve(response)
+      }).catch(error => {
+        reject(error)
       })
-    },
+    })
+  },
 
-    // 第三方验证登录
-    // LoginByThirdparty({ commit, state }, code) {
-    //   return new Promise((resolve, reject) => {
-    //     commit('SET_CODE', code)
-    //     loginByThirdparty(state.status, state.email, state.code).then(response => {
-    //       commit('SET_TOKEN', response.data.token)
-    //       setToken(response.data.token)
-    //       resolve()
-    //     }).catch(error => {
-    //       reject(error)
-    //     })
-    //   })
-    // },
+  // Third-party verification login
+  // LoginByThirdparty({ commit, state }, code) {
+  //   return new Promise((resolve, reject) => {
+  //     commit('SET_CODE', code)
+  //     loginByThirdparty(state.status, state.email, state.code).then(response => {
+  //       commit('SET_TOKEN', response.data.token)
+  //       setToken(response.data.token)
+  //       resolve()
+  //     }).catch(error => {
+  //       reject(error)
+  //     })
+  //   })
+  // },
 
-    // 登出
-    LogOut({ commit, state }) {
-      return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          removeToken()
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
-      })
-    },
-
-    // 前端 登出
-    FedLogOut({ commit }) {
-      return new Promise(resolve => {
+  // Sign out
+  LogOut({ commit, state }) {
+    return new Promise((resolve, reject) => {
+      logout(state.token).then(() => {
         commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
         removeToken()
         resolve()
+      }).catch(error => {
+        reject(error)
       })
-    },
+    })
+  },
 
-    // 动态修改权限
-    ChangeRoles({ commit }, role) {
-      return new Promise(resolve => {
-        commit('SET_TOKEN', role)
-        setToken(role)
-        getUserInfo(role).then(response => {
-          const data = response.data
-          commit('SET_ROLES', data.roles)
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          resolve()
-        })
+  // Front end
+  FedLogOut({ commit }) {
+    return new Promise(resolve => {
+      commit('SET_TOKEN', '')
+      removeToken()
+      resolve()
+    })
+  },
+
+  // Dynamically modify permissions
+  ChangeRoles({ commit }, role) {
+    return new Promise(resolve => {
+      commit('SET_TOKEN', role)
+      setToken(role)
+      getUserInfo(role).then(response => {
+        const data = response.data
+        commit('SET_ROLES', data.roles)
+        commit('SET_NAME', data.name)
+        commit('SET_AVATAR', data.avatar)
+        commit('SET_INTRODUCTION', data.introduction)
+        resolve()
       })
-    }
+    })
   }
+}
 }
 
 export default user
