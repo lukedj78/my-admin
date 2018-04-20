@@ -6,7 +6,7 @@ const user = {
     user: '',
     status: '',
     code: '',
-    token: getToken(),
+    token: '', //getToken(),
     name: '',
     avatar: '',
     introduction: '',
@@ -51,7 +51,6 @@ const user = {
         loginByUsername(username, userInfo.secret)
         .then(response => {
           const data = response.data
-          const role = 'admin'
           commit('SET_TOKEN', data.token)
           setToken(response.data.token)
           resolve()
@@ -70,7 +69,8 @@ const user = {
           reject('error')
         }
         const data = response.data
-        commit('SET_ROLES', data.roles)
+        const roles = ['admin']
+        commit('SET_ROLES', roles) // data.roles
         commit('SET_NAME', data.name)
         commit('SET_AVATAR', data.avatar)
         commit('SET_INTRODUCTION', data.introduction)

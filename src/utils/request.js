@@ -13,7 +13,8 @@ const service = axios.create({
 service.interceptors.request.use(config => {
   // Do something before request is sent
   if (store.getters.token) {
-    config.headers['X-Token'] = getToken() // Token makes each request ----['X-Token'] be self defined chiave Please modify it according to the actual situation
+    config.headers['authorization'] = 'Bearer ' + getToken()
+    // config.headers['X-Token'] = getToken() // Token makes each request ----['X-Token'] be self defined chiave Please modify it according to the actual situation
   }
   return config
 }, error => {
